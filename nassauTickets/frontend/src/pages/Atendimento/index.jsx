@@ -1,0 +1,15 @@
+import { useState } from 'react';
+import { Ticket, Users, UserRound, ArrowRight, Volume2, Play, Check, Clock3 } from 'lucide-react';
+import Card from '../../components/Card';
+import Button from '../../components/Button';
+import PriorityBadge from '../../components/PriorityBadge';
+import StatusBadge from '../../components/StatusBadge';
+import Table from '../../components/Table';
+import PatientQueue from '../../components/PatientQueue';
+import { currentPatient, waitingPatients, historyPatients } from '../../data/mockData';
+export default function Atendimento() {
+  const [current, setCurrent] = useState(currentPatient);
+  const [notice, setNotice] = useState('');
+  const call = patient => { setCurrent({ ...patient, status: 'Chamado' }); setNotice(`Demonstração: senha ${patient.ticket} chamada.`); };
+  return <><div className="page-heading"><div><div className="eyebrow">RECEPÇÃO DO LABORATÓRIO</div><h1>Atendimento</h1><p>Acompanhe a fila e organize o atendimento dos pacientes.</p></div><a className="button button-primary" href="#emissao"><Ticket size={17} />Emitir nova senha</a></div><div className="summary-grid"><Card title="Senha atual" value={current.ticket} icon={Ticket} detail={<PriorityBadge value={current.priority} />} /><Card title="Próxima senha" value="A024" icon={ArrowRight} detail="Maria Santos · Exame laboratorial" /><Card title="Paciente em atendimento" value={current.name} icon={UserRound} detail={current.type} className="patient-summary" /><Card title="Pacientes aguardando" value="12" icon={Users} detail="Na fila de atendimento" /></div><section className="current-panel"><div className="current-info"><div className="current-icon"><Volume2 size={21} /></div><div><div className="current-title">Atendimento atual <StatusBadge value={current.status} /></div><p><strong>{current.ticket}</strong><span className="separator">/</span>{current.name}<span className="current-type"> · {current.type}</span></p></div></div><div className="current-actions"><Button variant="secondary" onClick={() => call(waitingPatients[0])}><Volume2 size={16} />Chamar próxima</Button><Button disabled={current.status !== 'Chamado'} onClick={() => { setCurrent({ ...current, status: 'Em atendimento' }); setNotice('Demonstração: atendimento iniciado.'); }}><Play size={15} />Iniciar atendimento</Button><Button variant="secondary" disabled={current.status !== 'Em atendimento'} onClick={() => { setCurrent({ ...current, status: 'Finalizado' }); setNotice('Demonstração: atendimento finalizado.'); }}><Check size={17} />Finalizar atendimento</Button></div></section>{notice && <div className="notice" role="status"><Check size={16} />{notice}</div>}<PatientQueue patients={waitingPatients} onCall={call} /><section className="panel history-panel"><div className="section-heading"><div><h2><Clock3 size={18} />Histórico de atendimentos</h2><p>Últimos atendimentos finalizados nesta unidade.</p></div><span className="subtle-label">Hoje</span></div><Table rows={historyPatients} label="Histórico de atendimentos" history /></section></>;
+}
